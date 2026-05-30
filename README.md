@@ -1,45 +1,97 @@
 # 🚗 DriveAware — Real-Time Driver Fatigue Detection
 
-> AI-powered, in-browser driver fatigue and drowsiness detection using computer vision. No backend. No installs. Just open the page and drive safe.
+> **A SmartSpectra-Ready, In-Browser Driver Fatigue Platform.** AI-powered drowsiness detection that runs entirely in the browser, designed from day one to plug into Presage SmartSpectra SDK for true biometric fatigue scoring.
 
 ![Status](https://img.shields.io/badge/status-live-success)
 ![Stack](https://img.shields.io/badge/stack-MediaPipe%20%2B%20Vanilla%20JS-orange)
+![SmartSpectra](https://img.shields.io/badge/SmartSpectra-Phase%202%20Ready-purple)
 ![License](https://img.shields.io/badge/license-MIT-blue)
-![Built In](https://img.shields.io/badge/built%20in-2%20hours-red)
 
 ---
 
-## ⚠️ The Problem
+## 📸 Screenshots
 
-Drowsy driving kills. According to the [NHTSA](https://www.nhtsa.gov/risky-driving/drowsy-driving), fatigue is a factor in **~100,000 crashes, 50,000 injuries, and 800+ deaths every year** in the United States alone — and those are just the *reported* numbers. The real toll is significantly higher because drowsiness is hard to detect after the fact.
+> Add 3 screenshots here after taking them. Take with Win+Shift+S, save into the repo folder, then reference them like below.
 
-Commercial fleets, ride-share platforms, long-haul trucking, and even ordinary commuters lack a low-cost, hardware-free way to detect fatigue **before** a microsleep happens.
-
-## 💡 The Solution
-
-**DriveAware** turns any laptop, phone, or webcam-equipped device into a real-time driver fatigue detector. It runs entirely **in the browser** — no servers, no installs, no data leaves the device.
-
-Using Google's **MediaPipe Face Mesh** (468 facial landmarks tracked at ~30 FPS), DriveAware computes industry-standard drowsiness metrics including the **Eye Aspect Ratio (EAR)** and **PERCLOS**, and surfaces a composite **0–100 fatigue risk score** with tiered alerts.
+```markdown
+![DriveAware Main UI](screenshot-1.png)
+![Caution State](screenshot-2.png)
+![DANGER Alert](screenshot-3.png)
+```
 
 ---
 
-## ✨ Features
+## 💡 Inspiration
+
+According to the [NHTSA](https://www.nhtsa.gov/risky-driving/drowsy-driving), drowsy driving contributes to roughly **100,000 crashes, 50,000 injuries, and 800+ deaths every year** in the United States alone — and conservative estimates suggest the real toll is multiples higher because drowsiness is nearly impossible to verify post-crash.
+
+Commercial trucking, ride-share platforms, and long-haul logistics fleets all face this problem head-on. Existing solutions require **expensive in-vehicle hardware** ($500–$2,000 per dashcam), invasive wearables, or aftermarket cameras drivers refuse to install.
+
+When I learned about Presage's **SmartSpectra SDK** — a contactless biometric sensor that extracts pulse rate, HRV, breathing waveforms, and stress from standard camera video — I realized this was the missing piece. Combined with classical eye-tracking metrics, SmartSpectra unlocks a **biometric-grade fatigue detection system that can run on any device with a camera.**
+
+**DriveAware is the platform built to host that integration.** The MVP demonstrates the visual-cue detection layer (EAR + PERCLOS). Phase 2 plugs in SmartSpectra for the physiological layer — pulse, HRV, breathing, stress — to produce a true composite fatigue score.
+
+---
+
+## 🎯 What It Does
+
+DriveAware is a **real-time driver fatigue and drowsiness detection system** that runs entirely in the browser. Open the page, allow camera access, and within seconds it begins computing fatigue metrics that fleet-grade systems sell for thousands of dollars.
+
+### Current Capabilities (Phase 1)
 
 | Feature | Description |
 |---|---|
-| 🎯 **Real-time face landmark tracking** | 468-point MediaPipe Face Mesh at 30 FPS |
+| 🎯 **Face landmark tracking** | 468-point MediaPipe Face Mesh at 30 FPS |
 | 👁️ **Eye Aspect Ratio (EAR)** | Based on the Soukupová & Čech (2016) research formula |
-| 🚨 **PERCLOS scoring** | Industry-standard drowsiness metric (% eye closure over rolling 10s window) |
+| 🚨 **PERCLOS scoring** | U.S. Department of Transportation's gold-standard drowsiness metric |
 | 💤 **Microsleep detection** | Flags eye closures lasting >0.5 seconds |
 | 📊 **Live blink analytics** | Total count, blink rate per minute, eyes-closed duration |
-| 🎚️ **Tiered risk scoring** | 0–100 score with 4 levels: Alert → Caution → Warning → Danger |
+| 🎚️ **Tiered risk scoring** | 0-100 score with 4 levels: Alert → Caution → Warning → Danger |
 | 🔴 **Multi-channel alerts** | Flashing screen border, banner overlay, color-coded risk panel |
 | 🔒 **100% privacy-preserving** | All inference runs in-browser; no video ever leaves the device |
-| 📱 **Zero install** | Single HTML file, works on any modern browser |
 
+### Planned Capabilities (Phase 2 with SmartSpectra)
 
+| Feature | SmartSpectra API |
+|---|---|
+| 💓 **Pulse rate** | `sdk.metrics?.cardio.pulseRate` |
+| 📈 **Heart Rate Variability** | `sdk.metrics?.cardio.hrv` |
+| 🫁 **Breathing rate** | `sdk.metrics?.breathing.rate` |
+| 😰 **Stress score** | Derived from HRV + facial expressions |
+| 😶 **Facial expressions** | `sdk.metrics?.face.expression` |
+| 🗣️ **Talking detection** | `sdk.metrics?.face.talking` |
 
-## 🧠 How It Works
+---
+
+## 🚀 How To Use It
+
+```bash
+# Clone the repo
+git clone https://github.com/pranavmekala28/driveaware-fatigue-alert.git
+cd driveaware-fatigue-alert
+
+# Open the file (Windows)
+start index.html
+
+# Or just double-click index.html in your file explorer
+```
+
+There is no build step, no `npm install`, no backend. Just allow camera access and click **▶ Start Monitoring**.
+
+> **Note on local file permissions:** Some browsers require HTTPS or `localhost` for camera access. If opening `index.html` directly causes a permission issue, serve it via a one-line local server: `python -m http.server 8000` then visit `http://localhost:8000`.
+
+### Testing the Fatigue Detection
+
+1. Click **▶ Start Monitoring** and allow camera permission
+2. Look at the camera normally — your risk score stays green (ALERT level)
+3. **Close your eyes for 2+ seconds** — risk score spikes, screen flashes red, DANGER alert fires
+4. Click **↻ Reset Metrics** to start a new session
+
+---
+
+## 🧠 How It Was Built
+
+### Architecture
 
 ```
 ┌──────────────────┐    ┌────────────────────┐    ┌──────────────────┐
@@ -67,122 +119,162 @@ Using Google's **MediaPipe Face Mesh** (468 facial landmarks tracked at ~30 FPS)
                               └──────────────────┘
 ```
 
-### Key Metrics Explained
+### Tech Decisions
 
-**Eye Aspect Ratio (EAR)** — Ratio of eye height to eye width based on 6 facial landmarks. Open eyes ≈ 0.30; closed eyes < 0.20.
+**Why MediaPipe Face Mesh?** Google's production-grade face landmark detector — 468 points, 30 FPS on commodity hardware, runs entirely in-browser via WebAssembly. No server round-trip means privacy AND latency wins simultaneously.
 
-**PERCLOS (Percentage Eye Closure)** — The percentage of time the eyes are closed over a rolling window. Recognized by the U.S. Department of Transportation as the gold-standard fatigue indicator.
+**Why Eye Aspect Ratio (EAR)?** The Soukupová & Čech (2016) formula is the gold standard for blink detection from video. It uses simple geometric ratios that are robust to head pose, lighting, and camera angle.
 
-**Microsleep Detection** — A continuous eye closure of more than ~0.5 seconds during driving is treated as a critical event, immediately triggering the DANGER alert.
+**Why PERCLOS?** The U.S. Department of Transportation explicitly identifies PERCLOS as the most validated drowsiness metric in commercial vehicle research. Building on it means we ship a metric judges (and fleet operators) immediately recognize.
 
-**Composite Risk Score** — Weighted combination of PERCLOS, active eye-closure duration, and abnormal blink rate, capped at 0–100.
+**Why vanilla JS instead of React?** Zero dependencies = zero build step = ship in 2 hours. The entire app is a single self-contained HTML file.
 
----
-
-## 🛠️ Tech Stack
+### Tech Stack
 
 | Layer | Tools |
 |---|---|
-| **Computer Vision** | MediaPipe Face Mesh |
+| **Computer Vision** | MediaPipe Face Mesh (468-point tracking) |
 | **Frontend** | HTML5, CSS3, Vanilla JavaScript |
-| **Typography** | Bricolage Grotesque (display), JetBrains Mono (data), Manrope (body) |
+| **Typography** | Bricolage Grotesque, JetBrains Mono, Manrope |
 | **Camera Access** | WebRTC `getUserMedia` |
 | **Rendering** | HTML5 Canvas API |
-| **No dependencies** | No npm, no bundler, no backend |
+| **Dependencies** | None — single self-contained file |
 
 ---
 
-## 🚀 Run It Locally
+## 🧬 SmartSpectra Integration Architecture (Phase 2)
 
-```bash
-# Clone the repo
-git clone https://github.com/pranavmekala28/driveaware-fatigue-alert.git
-cd driveaware-fatigue-alert
+This is the **core of DriveAware's value proposition**: a platform purpose-built to host Presage SmartSpectra SDK and fuse its physiological signals with the visual fatigue cues already being computed.
 
-# Open the file
-# On Windows:
-start index.html
+### Integration Plan
 
-# On macOS:
-open index.html
-
-# Or just double-click index.html in your file explorer.
+```
+┌──────────────────────────────────────────────────────────┐
+│                    DRIVEAWARE PLATFORM                    │
+│                                                            │
+│  ┌─────────────────┐         ┌──────────────────────┐    │
+│  │ Phase 1 (Live)  │         │ Phase 2 (Next)       │    │
+│  │ Visual Layer    │         │ Physiological Layer  │    │
+│  │ ─────────────── │         │ ───────────────────  │    │
+│  │ • EAR           │         │ • Pulse rate         │    │
+│  │ • PERCLOS       │         │ • HRV (stress proxy) │    │
+│  │ • Microsleep    │  ◀───▶  │ • Breathing rate     │    │
+│  │ • Blink rate    │  fusion │ • Facial expressions │    │
+│  │                 │  layer  │ • Talking detection  │    │
+│  │ (MediaPipe)     │         │ (SmartSpectra SDK)   │    │
+│  └─────────────────┘         └──────────────────────┘    │
+│                       │                                    │
+│                       ▼                                    │
+│           ┌─────────────────────────┐                     │
+│           │   Composite Fatigue     │                     │
+│           │   Score (0-100)         │                     │
+│           │   + Confidence Interval │                     │
+│           └─────────────────────────┘                     │
+└──────────────────────────────────────────────────────────┘
 ```
 
-That's it. There is no build step. There is no `npm install`. Allow camera permission when prompted and click **Start Monitoring**.
+### Native Integration (Swift / iOS Example)
 
-> **Note:** Modern browsers require camera access over `https://` or `localhost` only. If opening the file directly causes a permission issue, serve it via a quick local server: `python -m http.server 8000` then visit `http://localhost:8000`.
+DriveAware's web frontend will be wrapped in a thin iOS shell using `WKWebView`. The Swift layer hosts SmartSpectra SDK and streams metrics to the web layer via JavaScript bridge:
 
----
+```swift
+import SwiftUI
+import SmartSpectra
 
-## 📋 Roadmap
+@main
+struct DriveAwareApp: App {
+    init() {
+        // Configure SmartSpectra with API key from Presage portal
+        SmartSpectraSDK.shared.config.apiKey = "YOUR_API_KEY"
+        SmartSpectraSDK.shared.config.cameraPosition = .front
 
-### ✅ Phase 1 — MVP (Shipped)
-- [x] MediaPipe Face Mesh integration
-- [x] EAR-based blink detection
-- [x] PERCLOS scoring
-- [x] Composite risk score (0–100)
-- [x] Tactical automotive UI
-- [x] Microsleep alert
-- [x] Visual + flashing alarm
+        // Request the exact metric groups DriveAware needs for fatigue scoring
+        SmartSpectraSDK.shared.config.requestedMetrics =
+            SmartSpectraConfig.cardioMetrics +
+            SmartSpectraConfig.breathingMetrics +
+            [.expressions]
+    }
 
-### 🚧 Phase 2 — Presage SmartSpectra Integration (Next)
-Integrate the [**Presage SmartSpectra SDK**](https://presagetechnologies.com/) for contactless physiological monitoring:
-- 💓 **Pulse rate** — extracted from facial skin color shifts (rPPG)
-- 🫁 **Breathing rate** — chest movement signal
-- 📈 **Heart Rate Variability (HRV)** — autonomic nervous system stress indicator
-- 😰 **Stress detection** — composite physiological stress score
-- 😶 **Facial expression analysis** — micro-expression-based fatigue signals
+    var body: some Scene {
+        WindowGroup {
+            DriveAwareWebView()  // hosts the existing HTML
+                .onAppear { startBiometricCapture() }
+        }
+    }
 
-This moves DriveAware from *visual fatigue inference* to *true biometric physiological fatigue detection.*
+    func startBiometricCapture() {
+        Task {
+            for await metrics in SmartSpectraSDK.shared.metricsStream {
+                // Bridge SmartSpectra metrics to the web layer's risk engine
+                let payload: [String: Any] = [
+                    "pulseRate": metrics?.cardio.pulseRate?.value ?? 0,
+                    "hrv": metrics?.cardio.hrv?.value ?? 0,
+                    "breathingRate": metrics?.breathing.rate?.value ?? 0,
+                    "stressScore": computeStressScore(metrics)
+                ]
+                webView.evaluateJavaScript("window.updateBiometrics(\(payload))")
+            }
+        }
+    }
+}
+```
 
-### 🔮 Phase 3 — Production Features
-- [ ] Video file upload mode (post-trip analysis)
-- [ ] Session export to PDF report
-- [ ] Multi-driver session storage (cloud-optional)
-- [ ] Fleet dashboard for trucking / ride-share companies
-- [ ] Mobile-native iOS/Android apps via React Native + Presage SDK
-- [ ] Real-time audio voice alerts ("Pull over now")
-- [ ] Integration with vehicle CAN-bus systems
+### Metric Fusion Algorithm
 
-### 🎯 Phase 4 — Commercial
-- [ ] B2B SaaS dashboard for fleet operators
-- [ ] Insurance partnership pilots (drowsy-driver risk discounts)
-- [ ] OEM integration for in-vehicle infotainment systems
+The Phase 2 composite risk score fuses visual + physiological signals:
+
+```
+visualRisk = (PERCLOS_weight * perclos_score) +
+             (microsleep_weight * microsleep_active) +
+             (blinkRate_weight * abnormal_blink_rate)
+
+physioRisk = (hrv_weight * hrv_stress_index) +
+             (breathing_weight * breathing_variability) +
+             (pulse_weight * elevated_pulse_pattern)
+
+compositeRisk = (0.6 * visualRisk) + (0.4 * physioRisk)
+```
+
+The weighting reflects that visual cues are leading indicators (eyes close before the body fully fatigues), while physiological signals confirm sustained fatigue states with much higher confidence.
+
+### Why This Architecture Wins
+
+1. **DriveAware's existing fatigue-scoring engine** has a clean injection point at the risk-score calculation step. SmartSpectra metrics drop in via `window.updateBiometrics()`.
+2. **No re-architecture required** — Phase 1 already computes a risk score from visual cues. Phase 2 layers physiological cues on top of the same scoring pipeline.
+3. **Privacy-preserving** stays intact — SmartSpectra runs on-device. Combined with our in-browser MediaPipe inference, the entire fatigue detection pipeline operates without sending video off-device.
 
 ---
 
 ## 🎯 Target Markets
 
 - 🚛 **Commercial trucking** — long-haul drivers are 7× more likely to drowse
-- 🚕 **Ride-share & taxi fleets** — night-shift driver safety
+- 🚕 **Ride-share & delivery fleets** — night-shift driver safety
 - 🏢 **Corporate fleet operators** — liability reduction
-- 🛡️ **Insurance** — usage-based premiums tied to alertness
+- 🛡️ **Insurance carriers** — usage-based premiums tied to alertness
 - 🚗 **Personal use** — DIY drivers, road-trippers
-- 🏥 **Telehealth** — combined fatigue + vitals monitoring (Phase 2)
+- 🏥 **Telehealth + fleet wellness** — fatigue + vitals monitoring (Phase 2)
 
 ---
 
 ## 🔐 Privacy by Design
 
-DriveAware is built **privacy-first**:
-
-- ✅ All inference runs **in-browser** — no video ever uploaded
-- ✅ No data persistence — nothing saved between sessions
+- ✅ All inference runs **in-browser** — no video upload, no server processing
+- ✅ Zero data persistence — nothing saved between sessions
 - ✅ No tracking, no analytics, no cookies
-- ✅ Works fully offline once loaded
-- ✅ Open-source and auditable
-
-When Phase 2 (Presage SDK) integrates remote vitals, those measurements are also processed on-device and never sent to a server.
+- ✅ Works fully offline after first load
+- ✅ Open source, MIT licensed — fully auditable
+- ✅ Phase 2 SmartSpectra integration also processes everything on-device
 
 ---
 
 ## 📚 References
 
-1. **Soukupová, T., & Čech, J.** (2016). *Real-Time Eye Blink Detection using Facial Landmarks.* 21st Computer Vision Winter Workshop.
-2. **Wierwille, W.W. et al.** (1994). *Research on Vehicle-Based Driver Status / Performance Monitoring.* NHTSA Technical Report (PERCLOS).
-3. **MediaPipe Face Mesh** — Google Research, [google.github.io/mediapipe](https://google.github.io/mediapipe/)
-4. **Presage Technologies — SmartSpectra SDK** — [presagetechnologies.com](https://presagetechnologies.com/)
+1. Soukupová, T., & Čech, J. (2016). *Real-Time Eye Blink Detection using Facial Landmarks.* Computer Vision Winter Workshop.
+2. Wierwille, W.W. et al. (1994). *Research on Vehicle-Based Driver Status / Performance Monitoring.* NHTSA Technical Report introducing PERCLOS.
+3. NHTSA — Drowsy Driving statistics, [nhtsa.gov/risky-driving/drowsy-driving](https://www.nhtsa.gov/risky-driving/drowsy-driving)
+4. Google MediaPipe Face Mesh — [google.github.io/mediapipe](https://google.github.io/mediapipe/)
+5. **Presage SmartSpectra SDK** — [presagetechnologies.com](https://presagetechnologies.com/)
+6. **SmartSpectra Swift SDK Examples** — [github.com/Presage-Security/SmartSpectraSwiftSDK-Examples](https://github.com/Presage-Security/SmartSpectraSwiftSDK-Examples)
 
 ---
 
@@ -192,9 +284,9 @@ When Phase 2 (Presage SDK) integrates remote vitals, those measurements are also
 M.S. Business Analytics · Webster University · Missouri, USA
 
 - 🐙 GitHub: [@pranavmekala28](https://github.com/pranavmekala28)
-- 💼 LinkedIn: [Pranav Mekala](https://www.linkedin.com/in/pranavmekala28/)
+- 💼 LinkedIn: [linkedin.com/in/pranavmekala28](https://www.linkedin.com/in/pranavmekala28/)
 
-Built solo during a 2-hour hackathon sprint.
+Built solo during a 2-hour hackathon sprint for the Presage SmartSpectra Hackathon, May 2026.
 
 ---
 

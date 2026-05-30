@@ -2,9 +2,12 @@
 
 > **A SmartSpectra-Ready, In-Browser Driver Fatigue Platform.** AI-powered drowsiness detection that runs entirely in the browser, designed from day one to plug into Presage SmartSpectra SDK for true biometric fatigue scoring.
 
-![Status](https://img.shields.io/badge/status-live-success)
-![Stack](https://img.shields.io/badge/stack-MediaPipe%20%2B%20Vanilla%20JS-orange)
-![SmartSpectra](https://img.shields.io/badge/SmartSpectra-Phase%202%20Ready-purple)
+![Status](https://img.shields.io/badge/status-live-success) <img width="2880" height="1800" alt="image" src="https://github.com/user-attachments/assets/28d9603e-31a3-47bf-98e5-430eace50560" />
+
+![Stack](https://img.shields.io/badge/stack-MediaPipe%20%2B%20Vanilla%20JS-orange) <img width="2880" height="1800" alt="image" src="https://github.com/user-attachments/assets/367aa86e-b95b-4299-9a45-90cb2eb7be53" />
+
+![SmartSpectra](https://img.shields.io/badge/SmartSpectra-Phase%202%20Ready-purple)<img width="2880" height="1800" alt="image" src="https://github.com/user-attachments/assets/f62dd94f-9ec7-402c-b6f1-898ddf0e27ae" />
+
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ---

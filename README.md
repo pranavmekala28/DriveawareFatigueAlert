@@ -37,17 +37,7 @@ Using Google's **MediaPipe Face Mesh** (468 facial landmarks tracked at ~30 FPS)
 | 🔒 **100% privacy-preserving** | All inference runs in-browser; no video ever leaves the device |
 | 📱 **Zero install** | Single HTML file, works on any modern browser |
 
----
 
-## 🎬 Demo
-
-> 📹 [**Watch the demo video →**](#) *(link your Loom recording here after submission)*
-
-| Live monitoring | Fatigue alert triggered |
-|---|---|
-| _(screenshot here)_ | _(screenshot of red DANGER state)_ |
-
----
 
 ## 🧠 How It Works
 

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DriveAware - Driver Fatigue Detection</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+<style>
+:root{
+  --bg:#080b15;
+  --card:#111623;
+  --border:#2a3142;
+  --text:#fff;
+  --muted:#9ca3af;
+  --gold:#ff9f1c;
+  --green:#06d6a0;
+  --red:#e63946;
+  --orange:#ff6b35;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  background:radial-gradient(circle at top,#172033,#080b15 55%);
+  color:var(--text);
+  font-family:Arial, sans-serif;
+  min-height:100vh;
+}
+
+.container{
+  max-width:1450px;
+  margin:auto;
+  padding:24px;
+}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:var(--card);
+  border:1px solid var(--border);
+  padding:22px;
+  margin-bottom:24px;
+}
+
+.logo{
+  font-size:32px;
+  font-weight:900;
+  color:var(--gold);
+}
+
+.subtitle{
+  color:var(--muted);
+  font-size:14px;
+  margin-top:6px;
+}
+
+.badge{
+  border:1px solid var(--gold);
+  color:var(--gold);
+  padding:8px 14px;
+  font-size:13px;
+}
+
+.dashboard-grid{
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:24px;
+}
+
+.panel{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+}
+
+.camera-header{
+  padding:15px 20px;
+  border-bottom:1px solid var(--border);
+  color:var(--muted);
+  display:flex;
+  justify-content:space-between;
+}
+
+.video-wrap{
+  position:relative;
+  aspect-ratio:16/9;
+  background:#000;
+}
+
+video, canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+video{
+  object-fit:cover;
+  transform:scaleX(-1);
+}
+
+canvas{
+  transform:scaleX(-1);
+  pointer-events:none;
+}
+
+.standby{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#101625,#05070c);
+  color:var(--muted);
+  font-size:20px;
+  text-align:center;
+}
+
+.alert{
+  position:absolute;
+  top:25px;
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--red);
+  padding:14px 28px;
+  display:none;
+  font-weight:900;
+  z-index:5;
+}
+
+.alert.show{
+  display:block;
+}
+
+.controls{
+  display:flex;
+  gap:12px;
+  padding:18px;
+  border-top:1px solid var(--border);
+}
+
+button{
+  padding:13px 20px;
+  border:none;
+  cursor:pointer;
+  background:#1f2937;
+  color:white;
+  font-weight:800;
+  border-radius:8px;
+}
+
+button.primary{
+  background:var(--gold);
+  color:#080b15;
+}
+
+button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.side{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.score-panel{
+  padding:28px;
+}
+
+.score-title{
+  color:var(--muted);
+  font-size:13px;
+  letter-spacing:2px;
+}
+
+.score{
+  font-size:88px;
+  font-weight:900;
+  margin-top:15px;
+}
+
+.score small{
+  font-size:28px;
+  color:var(--muted);
+}
+
+.status{
+  margin-top:12px;
+  font-size:18px;
+  font-weight:900;
+  color:var(--green);
+}
+
+.status.caution{color:var(--gold)}
+.status.warning{color:var(--orange)}
+.status.danger{color:var(--red)}
+
+.progress{
+  margin-top:24px;
+  height:11px;
+  background:#222;
+  border-radius:99px;
+  overflow:hidden;
+}
+
+#progressBar{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,var(--green),var(--gold),var(--red));
+  transition:.3s;
+}
+
+.metrics{
+  padding:24px;
+}
+
+.metric{
+  display:flex;
+  justify-content:space-between;
+  padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+
+.metric span:first-child{
+  color:var(--muted);
+}
+
+.metric span:last-child{
+  font-weight:900;
+}
+
+.footer{
+  margin-top:25px;
+  color:var(--muted);
+  text-align:center;
+}
+
+@media(max-width:950px){
+  .dashboard-grid{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div>
+      <div class="logo">DRIVEAWARE</div>
+      <div class="subtitle">Real-Time Driver Fatigue Detection using MediaPipe Face Mesh</div>
+    </div>
+    <div class="badge">LIVE AI SAFETY SYSTEM</div>
+  </div>
+
+  <div class="dashboard-grid">
+
+    <section class="panel">
+      <div class="camera-header">
+        <span>Camera Feed</span>
+        <span id="fpsCounter">— FPS</span>
+      </div>
+
+      <div class="video-wrap" id="videoWrap">
+        <div class="standby" id="standby">
+          Camera Standby<br>Click Start Monitoring
+        </div>
+
+        <video id="video" autoplay muted playsinline></video>
+        <canvas id="overlay"></canvas>
+
+        <div class="alert" id="alertBanner">
+          ⚠ FATIGUE DETECTED
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="primary" id="startBtn">Start Monitoring</button>
+        <button id="stopBtn" disabled>Stop</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+    </section>
+
+    <div class="side">
+
+      <section class="panel score-panel">
+        <div class="score-title">FATIGUE RISK SCORE</div>
+
+        <div class="score">
+          <span id="fatigueScore">0</span><small>/100</small>
+        </div>
+
+        <div class="status" id="riskStatus">● ALERT</div>
+
+        <div class="progress">
+          <div id="progressBar"></div>
+        </div>
+      </section>
+
+      <section class="panel metrics">
+        <div class="metric">
+          <span>Eye Aspect Ratio</span>
+          <span id="ear">—</span>
+        </div>
+
+        <div class="metric">
+          <span>Total Blinks</span>
+          <span id="blinks">0</span>
+        </div>
+
+        <div class="metric">
+          <span>Blink Rate</span>
+          <span id="blinkRate">0/min</span>
+        </div>
+
+        <div class="metric">
+          <span>PERCLOS</span>
+          <span id="perclos">0.0%</span>
+        </div>
+
+        <div class="metric">
+          <span>Eyes Closed</span>
+          <span id="closedDuration">0.0 s</span>
+        </div>
+
+        <div class="metric">
+          <span>Session Duration</span>
+          <span id="sessionTime">00:00</span>
+        </div>
+      </section>
+
+      <section class="panel metrics">
+        <div class="metric">
+          <span>Face Detection</span>
+          <span id="faceStatus">OFFLINE</span>
+        </div>
+
+        <div class="metric">
+          <span>Eye Tracking</span>
+          <span id="eyeStatus">OFFLINE</span>
+        </div>
+
+        <div class="metric">
+          <span>SmartSpectra</span>
+          <span>READY</span>
+        </div>
+      </section>
+
+    </div>
+
+  </div>
+
+  <div class="footer">
+    DRIVEAWARE · EAR + Blink Count + PERCLOS + SmartSpectra Ready
+  </div>
+
+</div>
+
+<script>
+const video = document.getElementById("video");
+const canvas = document.getElementById("overlay");
+const ctx = canvas.getContext("2d");
+
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+const resetBtn = document.getElementById("resetBtn");
+
+let camera = null;
+let faceMesh = null;
+let running = false;
+
+let blinkCount = 0;
+let isEyeClosed = false;
+let closedFrames = 0;
+let blinkTimes = [];
+let perclosWindow = [];
+let sessionStart = null;
+
+let frameCount = 0;
+let lastFpsTime = performance.now();
+
+const EAR_THRESHOLD = 0.20;
+const DROWSY_FRAMES = 15;
+const PERCLOS_FRAMES = 300;
+
+function dist(a,b){
+  return Math.hypot(a.x-b.x,a.y-b.y);
+}
+
+function calculateEAR(l){
+  const right = dist(l[159],l[145]) / dist(l[33],l[133]);
+  const left = dist(l[386],l[374]) / dist(l[263],l[362]);
+  return (right + left) / 2;
+}
+
+function drawEyes(l){
+  const points = [33,133,159,145,263,362,386,374];
+
+  ctx.fillStyle = "#ff9f1c";
+
+  points.forEach(i=>{
+    const p = l[i];
+    ctx.beginPath();
+    ctx.arc(p.x * canvas.width, p.y * canvas.height, 4, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+function updateMetrics(ear){
+  const elapsed = sessionStart ? (Date.now() - sessionStart) / 1000 : 0;
+
+  document.getElementById("ear").innerText = ear.toFixed(3);
+  document.getElementById("blinks").innerText = blinkCount;
+  document.getElementById("closedDuration").innerText = (closedFrames / 30).toFixed(1) + " s";
+
+  const mins = Math.floor(elapsed / 60);
+  const secs = Math.floor(elapsed % 60);
+  document.getElementById("sessionTime").innerText =
+    `${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+
+  blinkTimes = blinkTimes.filter(t => t > Date.now() - 60000);
+  document.getElementById("blinkRate").innerText = blinkTimes.length + "/min";
+
+  const closedCount = perclosWindow.filter(Boolean).length;
+  const perclos = perclosWindow.length ? closedCount / perclosWindow.length * 100 : 0;
+  document.getElementById("perclos").innerText = perclos.toFixed(1) + "%";
+
+  let score = 0;
+
+  if(perclos > 20) score += 55;
+  else if(perclos > 12) score += 35;
+  else if(perclos > 6) score += 20;
+
+  if(closedFrames > DROWSY_FRAMES) score += 35;
+  else if(closedFrames > 8) score += 15;
+
+  if(blinkTimes.length > 30) score += 10;
+
+  score = Math.min(100, Math.round(score));
+
+  document.getElementById("fatigueScore").innerText = score;
+  document.getElementById("progressBar").style.width = score + "%";
+
+  const risk = document.getElementById("riskStatus");
+  risk.className = "status";
+
+  if(score < 30){
+    risk.innerText = "● ALERT";
+  }else if(score < 55){
+    risk.innerText = "● CAUTION";
+    risk.classList.add("caution");
+  }else if(score < 80){
+    risk.innerText = "● WARNING";
+    risk.classList.add("warning");
+  }else{
+    risk.innerText = "● DANGER";
+    risk.classList.add("danger");
+  }
+
+  if(score >= 70 || closedFrames > DROWSY_FRAMES){
+    document.getElementById("alertBanner").classList.add("show");
+  }else{
+    document.getElementById("alertBanner").classList.remove("show");
+  }
+}
+
+function onResults(results){
+  frameCount++;
+
+  const now = performance.now();
+  if(now - lastFpsTime >= 1000){
+    document.getElementById("fpsCounter").innerText = frameCount + " FPS";
+    frameCount = 0;
+    lastFpsTime = now;
+  }
+
+  canvas.width = video.videoWidth || 1280;
+  canvas.height = video.videoHeight || 720;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  if(results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0){
+    document.getElementById("faceStatus").innerText = "TRACKING";
+    document.getElementById("eyeStatus").innerText = "TRACKING";
+
+    const landmarks = results.multiFaceLandmarks[0];
+    const ear = calculateEAR(landmarks);
+
+    drawEyes(landmarks);
+
+    const closed = ear < EAR_THRESHOLD;
+    perclosWindow.push(closed);
+
+    if(perclosWindow.length > PERCLOS_FRAMES){
+      perclosWindow.shift();
+    }
+
+    if(closed){
+      closedFrames++;
+
+      if(!isEyeClosed){
+        isEyeClosed = true;
+      }
+    }else{
+      if(isEyeClosed && closedFrames < DROWSY_FRAMES){
+        blinkCount++;
+        blinkTimes.push(Date.now());
+      }
+
+      isEyeClosed = false;
+      closedFrames = 0;
+    }
+
+    updateMetrics(ear);
+
+  }else{
+    document.getElementById("faceStatus").innerText = "NO FACE";
+    document.getElementById("eyeStatus").innerText = "NO FACE";
+    document.getElementById("ear").innerText = "—";
+  }
+}
+
+async function startMonitoring(){
+  try{
+    document.getElementById("standby").style.display = "none";
+
+    faceMesh = new FaceMesh({
+      locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+    });
+
+    faceMesh.setOptions({
+      maxNumFaces:1,
+      refineLandmarks:true,
+      minDetectionConfidence:0.5,
+      minTrackingConfidence:0.5
+    });
+
+    faceMesh.onResults(onResults);
+
+    camera = new Camera(video,{
+      onFrame: async () => {
+        if(running){
+          await faceMesh.send({image:video});
+        }
+      },
+      width:1280,
+      height:720
+    });
+
+    running = true;
+    sessionStart = Date.now();
+
+    await camera.start();
+
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+
+  }catch(error){
+    alert("Camera failed. Allow webcam permission and reload.");
+    console.error(error);
+  }
+}
+
+function stopMonitoring(){
+  running = false;
+
+  if(camera){
+    camera.stop();
+  }
+
+  if(video.srcObject){
+    video.srcObject.getTracks().forEach(track => track.stop());
+  }
+
+  document.getElementById("standby").style.display = "grid";
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+}
+
+function resetMetrics(){
+  blinkCount = 0;
+  isEyeClosed = false;
+  closedFrames = 0;
+  blinkTimes = [];
+  perclosWindow = [];
+  sessionStart = Date.now();
+
+  document.getElementById("fatigueScore").innerText = "0";
+  document.getElementById("progressBar").style.width = "0%";
+  document.getElementById("riskStatus").innerText = "● ALERT";
+  document.getElementById("riskStatus").className = "status";
+  document.getElementById("ear").innerText = "—";
+  document.getElementById("blinks").innerText = "0";
+  document.getElementById("blinkRate").innerText = "0/min";
+  document.getElementById("perclos").innerText = "0.0%";
+  document.getElementById("closedDuration").innerText = "0.0 s";
+  document.getElementById("sessionTime").innerText = "00:00";
+  document.getElementById("alertBanner").classList.remove("show");
+}
+
+startBtn.addEventListener("click", startMonitoring);
+stopBtn.addEventListener("click", stopMonitoring);
+resetBtn.addEventListener("click", resetMetrics);
+</script>
+
+</body>
+</html>

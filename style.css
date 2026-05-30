@@ -1,0 +1,478 @@
+:root{
+  --bg:#080b15;
+  --surface:#111623;
+  --surface2:#1a2030;
+  --border:#2a3142;
+  --text:#f7f1e8;
+  --muted:#8f96a8;
+  --amber:#ff9f1c;
+  --green:#06d6a0;
+  --red:#e63946;
+  --orange:#ff6b35;
+  --purple:#b388ff;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top,rgba(255,159,28,.10),transparent 35%),
+    linear-gradient(180deg,#080b15,#0a0d14);
+  color:var(--text);
+  font-family:Manrope,sans-serif;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(255,159,28,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,159,28,.035) 1px,transparent 1px);
+  background-size:32px 32px;
+  pointer-events:none;
+}
+
+.layout{
+  position:relative;
+  z-index:1;
+  max-width:1500px;
+  margin:auto;
+  padding:24px;
+}
+
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:20px 28px;
+  margin-bottom:24px;
+  position:relative;
+}
+
+header::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:4px;
+  background:var(--amber);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.brand-mark{
+  width:48px;
+  height:48px;
+  background:var(--amber);
+  color:#080b15;
+  display:grid;
+  place-items:center;
+  font-size:24px;
+  font-weight:800;
+  transform:rotate(-3deg);
+}
+
+.brand-name{
+  font-size:30px;
+  font-weight:800;
+  font-family:"Bricolage Grotesque",sans-serif;
+}
+
+.brand-tag{
+  font-family:"JetBrains Mono",monospace;
+  color:var(--muted);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+
+.header-meta{
+  display:flex;
+  gap:10px;
+  font-family:"JetBrains Mono",monospace;
+  font-size:11px;
+}
+
+.tag{
+  border:1px solid var(--border);
+  color:var(--muted);
+  padding:8px 12px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.tag.live{
+  color:var(--amber);
+  border-color:var(--amber);
+}
+
+.dashboard-grid{
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:24px;
+}
+
+.camera-panel,
+.score-panel,
+.metrics-panel,
+.status-panel,
+.roadmap-panel{
+  background:rgba(17,22,35,.96);
+  border:1px solid var(--border);
+  position:relative;
+}
+
+.camera-panel{
+  overflow:hidden;
+}
+
+.camera-header{
+  display:flex;
+  justify-content:space-between;
+  padding:16px 22px;
+  border-bottom:1px solid var(--border);
+  font-family:"JetBrains Mono",monospace;
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.session{
+  color:var(--amber);
+}
+
+.video-wrap{
+  position:relative;
+  aspect-ratio:16/9;
+  background:#000;
+  overflow:hidden;
+}
+
+video,
+canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+video{
+  object-fit:cover;
+  transform:scaleX(-1);
+}
+
+canvas{
+  transform:scaleX(-1);
+  pointer-events:none;
+}
+
+.video-empty{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#0a0d14,#151b2a);
+  color:var(--muted);
+  font-family:"JetBrains Mono",monospace;
+  z-index:2;
+  text-align:center;
+}
+
+.video-empty-icon{
+  font-size:44px;
+  margin-bottom:14px;
+}
+
+.corner{
+  position:absolute;
+  width:34px;
+  height:34px;
+  border:3px solid var(--amber);
+  opacity:.75;
+  z-index:4;
+}
+
+.tl{top:22px;left:22px;border-right:0;border-bottom:0}
+.tr{top:22px;right:22px;border-left:0;border-bottom:0}
+.bl{bottom:22px;left:22px;border-right:0;border-top:0}
+.br{bottom:22px;right:22px;border-left:0;border-top:0}
+
+.alert-banner{
+  position:absolute;
+  top:26px;
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--red);
+  padding:14px 28px;
+  color:white;
+  font-weight:800;
+  display:none;
+  z-index:10;
+  font-family:"JetBrains Mono",monospace;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.alert-banner.show{
+  display:block;
+}
+
+.video-wrap.danger{
+  box-shadow:inset 0 0 0 5px var(--red);
+}
+
+.controls{
+  display:flex;
+  gap:12px;
+  padding:18px 22px;
+  border-top:1px solid var(--border);
+}
+
+.btn{
+  border:1px solid var(--border);
+  background:var(--surface2);
+  color:var(--text);
+  padding:13px 22px;
+  font-family:"JetBrains Mono",monospace;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.btn:hover:not(:disabled){
+  border-color:var(--amber);
+  color:var(--amber);
+}
+
+.btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.btn.primary{
+  background:linear-gradient(135deg,var(--amber),#bd7419);
+  color:#080b15;
+  border-color:var(--amber);
+}
+
+.btn-spacer{
+  flex:1;
+}
+
+.side-stack{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.score-panel{
+  padding:28px 30px;
+  border-top:4px solid var(--amber);
+}
+
+.score-panel h3,
+.metrics-title,
+.status-title,
+.roadmap-title{
+  font-family:"JetBrains Mono",monospace;
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  margin-bottom:18px;
+}
+
+.score-number{
+  font-family:"Bricolage Grotesque",sans-serif;
+  font-size:86px;
+  font-weight:800;
+  line-height:1;
+}
+
+.score-number small{
+  font-size:26px;
+  color:var(--muted);
+}
+
+.risk-status{
+  font-family:"JetBrains Mono",monospace;
+  margin-top:14px;
+  font-size:16px;
+  letter-spacing:.18em;
+  font-weight:800;
+  color:var(--green);
+}
+
+.risk-status.caution{color:var(--amber)}
+.risk-status.warning{color:var(--orange)}
+.risk-status.danger{color:var(--red)}
+
+.progress{
+  margin-top:22px;
+  height:9px;
+  background:#222838;
+  overflow:hidden;
+}
+
+#progressBar{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,var(--green),var(--amber),var(--orange),var(--red));
+  transition:.35s;
+}
+
+.progress-marks{
+  display:flex;
+  justify-content:space-between;
+  color:var(--muted);
+  font-family:"JetBrains Mono",monospace;
+  font-size:10px;
+  margin-top:8px;
+}
+
+.metrics-panel{
+  padding:26px 30px;
+}
+
+.metric{
+  display:flex;
+  justify-content:space-between;
+  padding:15px 0;
+  border-bottom:1px solid var(--border);
+}
+
+.metric:last-child{
+  border-bottom:0;
+}
+
+.metric span:first-child{
+  color:var(--muted);
+}
+
+.metric span:last-child{
+  font-family:"JetBrains Mono",monospace;
+  font-weight:800;
+  font-size:17px;
+}
+
+.bad{
+  color:var(--red)!important;
+}
+
+.warn{
+  color:var(--amber)!important;
+}
+
+.status-panel,
+.roadmap-panel{
+  padding:24px 30px;
+}
+
+.status-row{
+  display:flex;
+  justify-content:space-between;
+  padding:12px 0;
+  border-bottom:1px solid var(--border);
+  font-family:"JetBrains Mono",monospace;
+  font-size:12px;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+
+.status-row:last-child{
+  border-bottom:0;
+}
+
+.dot{
+  display:inline-block;
+  width:8px;
+  height:8px;
+  background:var(--muted);
+  margin-right:8px;
+}
+
+.dot.active{
+  background:var(--green);
+  box-shadow:0 0 10px var(--green);
+}
+
+.dot.inactive{
+  background:var(--red);
+}
+
+.roadmap-panel{
+  background:linear-gradient(135deg,rgba(179,136,255,.12),rgba(76,201,240,.05));
+  border-color:var(--purple);
+}
+
+.roadmap-title{
+  color:var(--purple);
+}
+
+.roadmap-panel p{
+  color:#d9d6e8;
+  font-size:14px;
+  line-height:1.7;
+}
+
+footer{
+  margin-top:28px;
+  padding:22px;
+  text-align:center;
+  color:var(--muted);
+  font-family:"JetBrains Mono",monospace;
+  font-size:11px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.error-toast{
+  position:fixed;
+  bottom:24px;
+  right:24px;
+  background:var(--red);
+  padding:14px 22px;
+  color:white;
+  font-family:"JetBrains Mono",monospace;
+  display:none;
+  z-index:99;
+}
+
+.error-toast.show{
+  display:block;
+}
+
+@media(max-width:1000px){
+  .dashboard-grid{
+    grid-template-columns:1fr;
+  }
+
+  header{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:16px;
+  }
+
+  .header-meta{
+    flex-wrap:wrap;
+  }
+
+  .score-number{
+    font-size:68px;
+  }
+}
